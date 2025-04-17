@@ -188,7 +188,7 @@ public:
 typedef s32 SamplerLayer_t;
 
 
-class GameGlobalShaderConstantSetter : public IShaderConstantSetter
+class GameGlobalShaderConstantSetter : public IShaderUniformSetter
 {
 	Sky *m_sky;
 	Client *m_client;
@@ -395,13 +395,13 @@ public:
 };
 
 
-class GameGlobalShaderConstantSetterFactory : public IShaderConstantSetterFactory
+class GameGlobalShaderUniformSetterFactory : public IShaderUniformSetterFactory
 {
 	Sky *m_sky = nullptr;
 	Client *m_client;
 	std::vector<GameGlobalShaderConstantSetter *> created_nosky;
 public:
-	GameGlobalShaderConstantSetterFactory(Client *client) :
+	GameGlobalShaderUniformSetterFactory(Client *client) :
 		m_client(client)
 	{}
 
@@ -414,7 +414,7 @@ public:
 		created_nosky.clear();
 	}
 
-	virtual IShaderConstantSetter* create()
+	virtual IShaderUniformSetter* create()
 	{
 		auto *scs = new GameGlobalShaderConstantSetter(m_sky, m_client);
 		if (!m_sky)
@@ -1289,11 +1289,11 @@ bool Game::createClient(const GameStartData &start_data)
 		return false;
 	}
 
-	auto *scsf = new GameGlobalShaderConstantSetterFactory(client);
-	shader_src->addShaderConstantSetterFactory(scsf);
+	auto *scsf = new GameGlobalShaderUniformSetterFactory(client);
+	shader_src->addShaderUniformSetterFactory(scsf);
 
-	shader_src->addShaderConstantSetterFactory(
-		new FogShaderConstantSetterFactory());
+	shader_src->addShaderUniformSetterFactory(
+		new FogShaderUniformSetterFactory());
 
 	ShadowRenderer::preInit(shader_src);
 
