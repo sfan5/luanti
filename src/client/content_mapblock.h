@@ -151,6 +151,7 @@ private:
 
 // drawtypes
 	void drawSolidNode();
+	void drawOccluderNode();
 	void drawLiquidNode();
 	void drawGlasslikeNode();
 	void drawGlasslikeFramedNode();

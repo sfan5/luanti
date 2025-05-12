@@ -46,4 +46,9 @@ void TileLayer::applyMaterialOptions(video::SMaterial &material, int layer) cons
 		material.PolygonOffsetSlopeScale = 1;
 		material.PolygonOffsetDepthBias = 1;
 	}
+
+	if (material_flags & MATERIAL_FLAG_OCCLUDER) {
+		material.ColorMask = video::ECP_NONE;
+		material.MaterialType = video::EMT_SOLID; // ?
+	}
 }

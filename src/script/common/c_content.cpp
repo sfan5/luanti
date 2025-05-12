@@ -605,9 +605,6 @@ TileDef read_tiledef(lua_State *L, int index, u8 drawtype, bool special)
 		case NDT_PLANTLIKE:
 		case NDT_FIRELIKE:
 			default_tiling = false;
-			// "break" is omitted here intentionaly, as PLANTLIKE
-			// FIRELIKE drawtype both should default to having
-			// backface_culling to false.
 			[[fallthrough]];
 		case NDT_MESH:
 		case NDT_LIQUID:
@@ -695,8 +692,13 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 
 	/* Visual definition */
 
-	f.drawtype = (NodeDrawType)getenumfield(L, index, "drawtype",
-			ScriptApiNode::es_DrawType,NDT_NORMAL);
+	{
+		auto str = getstringfield_default(L, index, "drawtype", "");
+		if (!string_to_enum(ScriptApiNode::es_DrawType, f.drawtype, str))
+			warningstream << "Node " << f.name.c_str()
+				<< " has unknown drawtype \"" << str << '"' << std::endl;
+	}
+
 	getfloatfield(L, index, "visual_scale", f.visual_scale);
 
 	/* Meshnode model filename */
@@ -796,10 +798,8 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 		if (lua_toboolean(L, -1))
 			f.alpha = (f.drawtype == NDT_NORMAL) ? ALPHAMODE_CLIP : ALPHAMODE_BLEND;
 	} else if (check_field_or_nil(L, -1, LUA_TSTRING, "use_texture_alpha")) {
-		int result = f.alpha;
-		string_to_enum(ScriptApiNode::es_TextureAlphaMode, result,
-				std::string(lua_tostring(L, -1)));
-		f.alpha = static_cast<enum AlphaMode>(result);
+		string_to_enum(ScriptApiNode::es_TextureAlphaMode, f.alpha,
+			lua_tostring(L, -1));
 	}
 	lua_pop(L, 1);
 
@@ -830,10 +830,12 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 			f.param_type_2 == CPT2_COLORED_4DIR))
 		warningstream << "Node " << f.name.c_str()
 			<< " has a palette, but not a suitable paramtype2." << std::endl;
+	// ^ move this
 
 	// True for all ground-like things like stone and mud, false for eg. trees
 	getboolfield(L, index, "is_ground_content", f.is_ground_content);
-	f.light_propagates = (f.param_type == CPT_LIGHT);
+	f.light_propagates = f.param_type == CPT_LIGHT && f.drawtype != NDT_OCCLUDER;
+	// ^ move this
 	getboolfield(L, index, "sunlight_propagates", f.sunlight_propagates);
 	// This is used for collision detection.
 	// Also for general solidness queries.
@@ -889,6 +891,7 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 			<< ", it was reduced." << std::endl;
 		f.light_source = LIGHT_MAX;
 	}
+	// ^ move this
 	f.damage_per_second = getintfield_default(L, index,
 			"damage_per_second", f.damage_per_second);
 

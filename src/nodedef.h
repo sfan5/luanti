@@ -227,6 +227,8 @@ enum NodeDrawType : u8
 	NDT_MESH,
 	// Combined plantlike-on-solid
 	NDT_PLANTLIKE_ROOTED,
+	// Occludes but is invisible
+	NDT_OCCLUDER,
 
 	// Dummy for validity check
 	NodeDrawType_END

@@ -882,6 +882,10 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 	case NDT_PLANTLIKE_ROOTED:
 		solidness = 2;
 		break;
+	case NDT_OCCLUDER:
+		solidness = 1;
+		material_type = TILE_MATERIAL_OPAQUE;
+		break;
 	}
 
 	if (is_liquid) {
@@ -935,6 +939,9 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 		for (u16 j = 0; j < 6; j++)
 			tiles[j].layers[0].need_polygon_offset = true;
 	}
+
+	if (drawtype == NDT_OCCLUDER)
+		tiles[0].layers[0].material_flags |= MATERIAL_FLAG_OCCLUDER;
 
 	MaterialType special_material = material_type;
 	if (drawtype == NDT_PLANTLIKE_ROOTED) {

@@ -799,7 +799,7 @@ void MeshBufListMaps::addFromBlock(v3s16 block_pos, MapBlockMesh *block_mesh,
 			auto &material = buf->getMaterial();
 			auto *rnd = driver->getMaterialRenderer(material.MaterialType);
 			bool transparent = rnd && rnd->isTransparent();
-			if (!transparent)
+			if (!transparent && material.ColorMask == video::ECP_ALL)
 				add(buf, block_pos, layer);
 		}
 	}
@@ -1057,6 +1057,18 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 		} else {
 			// Otherwise, group them
 			grouped_buffers.addFromBlock(block_pos, block_mesh, driver);
+
+			auto *mesh = block_mesh->getMesh(0);
+			u32 c = mesh->getMeshBufferCount();
+			for (u32 i = 0; i < c; i++) {
+				auto *buf = mesh->getMeshBuffer(i);
+
+				auto &material = buf->getMaterial();
+				if (material.ColorMask != video::ECP_ALL) {
+					// draw first
+					draw_order.emplace_back(get_block_wpos(block_pos), buf, false);
+				}
+			}
 		}
 	}
 

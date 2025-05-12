@@ -48,3 +48,12 @@ core.register_node("testnodes:sunlight_propagator", {
 	},
 	groups = { dig_immediate = 3 },
 })
+
+core.register_node("testnodes:occluder", {
+	description = S("Occluder"),
+	paramtype = "light", -- still lets light through
+
+	drawtype = "occluder",
+	inventory_image = "testnodes_light_1.png^[transformFY",
+	groups = { dig_immediate = 3 },
+})

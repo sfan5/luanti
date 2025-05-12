@@ -34,7 +34,7 @@ enum MaterialType : u8 {
 // Ignored if MATERIAL_FLAG_CRACK is not set.
 #define MATERIAL_FLAG_CRACK_OVERLAY 0x04
 #define MATERIAL_FLAG_ANIMATION 0x08
-//#define MATERIAL_FLAG_HIGHLIGHTED 0x10
+#define MATERIAL_FLAG_OCCLUDER 0x10
 #define MATERIAL_FLAG_TILEABLE_HORIZONTAL 0x20
 #define MATERIAL_FLAG_TILEABLE_VERTICAL 0x40
 
@@ -191,8 +191,6 @@ struct TileSpec
 	bool world_aligned = false;
 	//! Tile rotation.
 	TileRotation rotation = TileRotation::None;
-	//! This much light does the tile emit.
-	u8 emissive_light = 0;
 	//! The first is base texture, the second is overlay.
 	TileLayer layers[MAX_TILE_LAYERS];
 };

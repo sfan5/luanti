@@ -440,8 +440,7 @@ void MapblockMeshGenerator::drawSolidNode()
 	if (!faces)
 		return;
 	u8 mask = faces ^ 0b0011'1111; // k-th bit is set if k-th face is to be *omitted*, as expected by cuboid drawing functions.
-	cur_node.origin = intToFloat(cur_node.p, BS);
-	auto box = aabb3f(v3f(-0.5 * BS), v3f(0.5 * BS));
+	auto box = aabb3f(v3f(-BS/2), v3f(BS/2));
 	f32 texture_coord_buf[24];
 	box.MinEdge += cur_node.origin;
 	box.MaxEdge += cur_node.origin;
@@ -481,6 +480,20 @@ void MapblockMeshGenerator::drawSolidNode()
 			}
 			return QuadDiagonal::Diag02;
 		});
+	}
+}
+
+void MapblockMeshGenerator::drawOccluderNode()
+{
+	const TileSpec *tile = nodedef->get(cur_node.n).tiles;
+	auto box = aabb3f(v3f(-BS/2), v3f(BS/2));
+	static const f32 txc[24] = {};
+	box.MinEdge += cur_node.origin;
+	box.MaxEdge += cur_node.origin;
+	auto vertices = setupCuboidVertices(box, txc, tile, 1);
+
+	for (int k = 0; k < 6; ++k) {
+		collector->append(tile[0], &vertices[4 * k], 4, quad_indices, 6);
 	}
 }
 
@@ -1736,6 +1749,7 @@ void MapblockMeshGenerator::errorUnknownDrawtype()
 
 void MapblockMeshGenerator::drawNode()
 {
+	cur_node.origin = intToFloat(cur_node.p, BS);
 	switch (cur_node.f->drawtype) {
 		case NDT_AIRLIKE:  // Not drawn at all
 			return;
@@ -1743,10 +1757,13 @@ void MapblockMeshGenerator::drawNode()
 		case NDT_NORMAL: // solid nodes don’t need the usual setup
 			drawSolidNode();
 			return;
+		case NDT_OCCLUDER:
+			drawOccluderNode();
+			return;
 		default:
 			break;
 	}
-	cur_node.origin = intToFloat(cur_node.p, BS);
+
 	if (data->m_smooth_lighting) {
 		getSmoothLightFrame();
 	} else {
