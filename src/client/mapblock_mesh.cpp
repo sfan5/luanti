@@ -732,6 +732,21 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 	m_has_animation =
 		!m_crack_materials.empty() ||
 		!m_animation_info.empty();
+
+	m_any_edge_nodes = false;
+	const auto bpn = data->m_blockpos * MAP_BLOCKSIZE;
+	const auto sl_1 = data->m_side_length - 1;
+	for (u16 z = 0; z < data->m_side_length; ++z)
+	for (u16 y = 0; y < data->m_side_length; ++y)
+	for (u16 x = 0; x < data->m_side_length; ++x) {
+		if ((x != 0 && x != sl_1) || (y != 0 && y != sl_1) || (z != 0 && z != sl_1))
+			continue;
+		MapNode n = data->m_vmanip.getNodeNoEx(bpn + v3s16(x,y,z));
+		if (n.getContent() != CONTENT_AIR && n.getContent() != CONTENT_IGNORE) {
+			m_any_edge_nodes = true;
+			return;
+		}
+	}
 }
 
 MapBlockMesh::~MapBlockMesh()

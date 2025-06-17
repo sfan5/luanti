@@ -245,6 +245,8 @@ public:
 		return m_transparent_buffers;
 	}
 
+	bool m_any_edge_nodes;
+
 private:
 
 	irr_ptr<scene::IMesh> m_mesh[MAX_TILE_LAYERS];

@@ -79,7 +79,8 @@ MeshUpdateQueue::~MeshUpdateQueue()
 	}
 }
 
-bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool urgent)
+bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
+	bool urgent, bool from_neighbor)
 {
 	MapBlock *main_block = map->getBlockNoCreateNoEx(p);
 	if (!main_block)
@@ -113,6 +114,18 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
 			q->getBlocks(map, mesh_grid.cell_size);
 			return true;
 		}
+	}
+
+	/*
+		If the block is not in queue, has a mesh and we know that the mesh does
+		not depend on its neighboring nodes in anyway, then we can skip the update
+		in certain cases.
+	*/
+	if (from_neighbor && main_block->mesh && !main_block->mesh->m_any_edge_nodes) {
+		assert(!ack_block_to_server);
+		m_urgents.erase(mesh_position);
+		g_profiler->add("MeshUpdateQueue: updates skipped", 1);
+		return true;
 	}
 
 	/*
@@ -258,7 +271,7 @@ void MeshUpdateManager::updateBlock(Map *map, v3s16 p, bool ack_block_to_server,
 	static thread_local const bool many_neighbors =
 			g_settings->getBool("smooth_lighting")
 			&& !g_settings->getFlag("performance_tradeoffs");
-	if (!m_queue_in.addBlock(map, p, ack_block_to_server, urgent)) {
+	if (!m_queue_in.addBlock(map, p, ack_block_to_server, urgent, false)) {
 		warningstream << "Update requested for non-existent block at "
 				<< p << std::endl;
 		return;
@@ -266,10 +279,10 @@ void MeshUpdateManager::updateBlock(Map *map, v3s16 p, bool ack_block_to_server,
 	if (update_neighbors) {
 		if (many_neighbors) {
 			for (v3s16 dp : g_26dirs)
-				m_queue_in.addBlock(map, p + dp, false, urgent);
+				m_queue_in.addBlock(map, p + dp, false, urgent, true);
 		} else {
 			for (v3s16 dp : g_6dirs)
-				m_queue_in.addBlock(map, p + dp, false, urgent);
+				m_queue_in.addBlock(map, p + dp, false, urgent, true);
 		}
 	}
 	deferUpdate();
