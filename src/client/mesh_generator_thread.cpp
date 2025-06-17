@@ -32,6 +32,29 @@ QueuedMeshUpdate::~QueuedMeshUpdate()
 	delete data;
 }
 
+void QueuedMeshUpdate::getBlocks(Map *map, u16 cell_size)
+{
+	const size_t total = (cell_size+2)*(cell_size+2)*(cell_size+2);
+	if (map_blocks.empty())
+		map_blocks.resize(total);
+	else
+		assert(map_blocks.size() == total); // must not change
+	size_t i = 0;
+	v3s16 pos;
+	for (pos.X = p.X - 1; pos.X <= p.X + cell_size; pos.X++)
+	for (pos.Z = p.Z - 1; pos.Z <= p.Z + cell_size; pos.Z++)
+	for (pos.Y = p.Y - 1; pos.Y <= p.Y + cell_size; pos.Y++) {
+		if (!map_blocks[i]) {
+			MapBlock *block = map->getBlockNoCreateNoEx(pos);
+			if (block) {
+				block->refGrab();
+				map_blocks[i] = block;
+			}
+		}
+		i++;
+	}
+}
+
 /*
 	MeshUpdateQueue
 */
@@ -48,9 +71,10 @@ MeshUpdateQueue::~MeshUpdateQueue()
 	MutexAutoLock lock(m_mutex);
 
 	for (QueuedMeshUpdate *q : m_queue) {
-		for (auto block : q->map_blocks)
+		for (auto *block : q->map_blocks) {
 			if (block)
 				block->refDrop();
+		}
 		delete q;
 	}
 }
@@ -61,13 +85,14 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
 	if (!main_block)
 		return false;
 
-	MutexAutoLock lock(m_mutex);
-
 	MeshGrid mesh_grid = m_client->getMeshGrid();
 
 	// Mesh is placed at the corner block of a chunk
 	// (where all coordinate are divisible by the chunk size)
-	v3s16 mesh_position(mesh_grid.getMeshPos(p));
+	v3s16 mesh_position = mesh_grid.getMeshPos(p);
+
+	MutexAutoLock lock(m_mutex);
+
 	/*
 		Mark the block as urgent if requested
 	*/
@@ -80,44 +105,14 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
 	*/
 	for (QueuedMeshUpdate *q : m_queue) {
 		if (q->p == mesh_position) {
-			// NOTE: We are not adding a new position to the queue, thus
-			//       refcount_from_queue stays the same.
-			if(ack_block_to_server)
+			if (ack_block_to_server)
 				q->ack_list.push_back(p);
 			q->crack_level = m_client->getCrackLevel();
 			q->crack_pos = m_client->getCrackPos();
 			q->urgent |= urgent;
-			v3s16 pos;
-			int i = 0;
-			for (pos.X = q->p.X - 1; pos.X <= q->p.X + mesh_grid.cell_size; pos.X++)
-			for (pos.Z = q->p.Z - 1; pos.Z <= q->p.Z + mesh_grid.cell_size; pos.Z++)
-			for (pos.Y = q->p.Y - 1; pos.Y <= q->p.Y + mesh_grid.cell_size; pos.Y++) {
-				if (!q->map_blocks[i]) {
-					MapBlock *block = map->getBlockNoCreateNoEx(pos);
-					if (block) {
-						block->refGrab();
-						q->map_blocks[i] = block;
-					}
-				}
-				i++;
-			}
+			q->getBlocks(map, mesh_grid.cell_size);
 			return true;
 		}
-	}
-
-	/*
-		Make a list of blocks necessary for mesh generation and lock the blocks in memory.
-	*/
-	std::vector<MapBlock *> map_blocks;
-	map_blocks.reserve((mesh_grid.cell_size+2)*(mesh_grid.cell_size+2)*(mesh_grid.cell_size+2));
-	v3s16 pos;
-	for (pos.X = mesh_position.X - 1; pos.X <= mesh_position.X + mesh_grid.cell_size; pos.X++)
-	for (pos.Z = mesh_position.Z - 1; pos.Z <= mesh_position.Z + mesh_grid.cell_size; pos.Z++)
-	for (pos.Y = mesh_position.Y - 1; pos.Y <= mesh_position.Y + mesh_grid.cell_size; pos.Y++) {
-		MapBlock *block = map->getBlockNoCreateNoEx(pos);
-		map_blocks.push_back(block);
-		if (block)
-			block->refGrab();
 	}
 
 	/*
@@ -125,12 +120,12 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
 	*/
 	QueuedMeshUpdate *q = new QueuedMeshUpdate;
 	q->p = mesh_position;
-	if(ack_block_to_server)
+	if (ack_block_to_server)
 		q->ack_list.push_back(p);
 	q->crack_level = m_client->getCrackLevel();
 	q->crack_pos = m_client->getCrackPos();
 	q->urgent = urgent;
-	q->map_blocks = std::move(map_blocks);
+	q->getBlocks(map, mesh_grid.cell_size);
 	m_queue.push_back(q);
 
 	return true;
@@ -219,6 +214,7 @@ void MeshUpdateWorkerThread::doUpdate()
 
 		ScopeProfiler sp(g_profiler, "Client: Mesh making (sum)");
 
+		// This generates the mesh:
 		MapBlockMesh *mesh_new = new MapBlockMesh(m_client, q->data);
 
 		MeshUpdateResult r;

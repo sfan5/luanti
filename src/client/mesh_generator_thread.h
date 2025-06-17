@@ -22,11 +22,19 @@ struct QueuedMeshUpdate
 	int crack_level = -1;
 	v3s16 crack_pos;
 	MeshMakeData *data = nullptr; // This is generated in MeshUpdateQueue::pop()
-	std::vector<MapBlock *> map_blocks;
+	std::vector<MapBlock*> map_blocks;
 	bool urgent = false;
 
 	QueuedMeshUpdate() = default;
 	~QueuedMeshUpdate();
+
+	/**
+	 * Retrieve blocks needed for this mesh update from the map.
+	 * Blocks that were already loded are skipped.
+	 * @param map Map
+	 * @param cell_size mesh grid cell size
+	 */
+	void getBlocks(Map *map, u16 cell_size);
 };
 
 /*
@@ -56,7 +64,7 @@ public:
 	// Marks a position as finished, unblocking the next update
 	void done(v3s16 pos);
 
-	u32 size()
+	size_t size()
 	{
 		MutexAutoLock lock(m_mutex);
 		return m_queue.size();
@@ -83,7 +91,7 @@ struct MeshUpdateResult
 	u8 solid_sides;
 	std::vector<v3s16> ack_list;
 	bool urgent = false;
-	std::vector<MapBlock *> map_blocks;
+	std::vector<MapBlock*> map_blocks;
 
 	MeshUpdateResult() = default;
 };
@@ -117,6 +125,7 @@ public:
 	void updateBlock(Map *map, v3s16 p, bool ack_block_to_server, bool urgent,
 			bool update_neighbors = false);
 	void putResult(const MeshUpdateResult &r);
+	/// @note caller needs to refDrop() the affected map_blocks
 	bool getNextResult(MeshUpdateResult &r);
 
 

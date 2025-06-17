@@ -242,7 +242,7 @@ public:
 	/// get the list of transparent buffers
 	const std::vector<PartialMeshBuffer> &getTransparentBuffers() const
 	{
-		return this->m_transparent_buffers;
+		return m_transparent_buffers;
 	}
 
 private:
