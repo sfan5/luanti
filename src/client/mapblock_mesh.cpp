@@ -739,7 +739,8 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 	for (u16 z = 0; z < data->m_side_length; ++z)
 	for (u16 y = 0; y < data->m_side_length; ++y)
 	for (u16 x = 0; x < data->m_side_length; ++x) {
-		if ((x != 0 && x != sl_1) || (y != 0 && y != sl_1) || (z != 0 && z != sl_1))
+		bool ex = (!x || x == sl_1), ey = (!y || y == sl_1), ez = (!z || z == sl_1);
+		if (!ex && !ey && !ez)
 			continue;
 		MapNode n = data->m_vmanip.getNodeNoEx(bpn + v3s16(x,y,z));
 		if (n.getContent() != CONTENT_AIR && n.getContent() != CONTENT_IGNORE) {
