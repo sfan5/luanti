@@ -82,6 +82,8 @@ MeshUpdateQueue::~MeshUpdateQueue()
 bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
 	bool urgent, bool from_neighbor)
 {
+	// FIXME: with cell_size > 1 there isn't a "main block" and this check is
+	// probably incorrect and broken
 	MapBlock *main_block = map->getBlockNoCreateNoEx(p);
 	if (!main_block)
 		return false;
@@ -117,12 +119,11 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
 	}
 
 	/*
-		If the block is not in queue and has a mesh we can check if the mesh
-		would actually be affected by this specific neighbor update, and if not
-		skip re-generating it.
-		For now just use an extremely simple check (mesh empty => unaffected).
+		Air blocks won't suddenly become visible due to a neighbor update, so
+		skip those.
+		Note: this can be extended with more precise checks in the future
 	*/
-	if (from_neighbor && main_block->mesh && main_block->mesh->isEmpty()) {
+	if (from_neighbor && mesh_grid.cell_size == 1 && main_block->isAir()) {
 		assert(!ack_block_to_server);
 		m_urgents.erase(mesh_position);
 		g_profiler->add("MeshUpdateQueue: updates skipped", 1);

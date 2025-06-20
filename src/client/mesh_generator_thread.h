@@ -30,7 +30,7 @@ struct QueuedMeshUpdate
 
 	/**
 	 * Retrieve blocks needed for this mesh update from the map.
-	 * Blocks that were already loded are skipped.
+	 * Blocks that were already loaded are skipped.
 	 * @param map Map
 	 * @param cell_size mesh grid cell size
 	 */
