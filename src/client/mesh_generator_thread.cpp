@@ -117,11 +117,12 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
 	}
 
 	/*
-		If the block is not in queue, has a mesh and we know that the mesh does
-		not depend on its neighboring nodes in anyway, then we can skip the update
-		in certain cases.
+		If the block is not in queue and has a mesh we can check if the mesh
+		would actually be affected by this specific neighbor update, and if not
+		skip re-generating it.
+		For now just use an extremely simple check (mesh empty => unaffected).
 	*/
-	if (from_neighbor && main_block->mesh && !main_block->mesh->m_any_edge_nodes) {
+	if (from_neighbor && main_block->mesh && main_block->mesh->isEmpty()) {
 		assert(!ack_block_to_server);
 		m_urgents.erase(mesh_position);
 		g_profiler->add("MeshUpdateQueue: updates skipped", 1);
