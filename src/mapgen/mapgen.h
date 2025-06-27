@@ -136,6 +136,9 @@ struct MapgenParams {
 
 	s32 getSpawnRangeMax();
 
+	// Mostly arbitrary limit
+	constexpr static u32 MAX_CHUNK_VOLUME = 2000;
+
 private:
 	bool m_mapgen_edges_calculated = false;
 };
