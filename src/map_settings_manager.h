@@ -51,7 +51,11 @@ public:
 
 	bool loadMapMeta();
 	bool saveMapMeta();
+
+	/// @brief Finalizes and creates the mapgen params
 	MapgenParams *makeMapgenParams();
+	/// @brief Creates a copy of the mapgen params without making the manager immutable
+	MapgenParams *makeMapgenParamsCopy() const;
 
 private:
 	std::string m_map_meta_path;
