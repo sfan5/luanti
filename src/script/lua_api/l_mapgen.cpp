@@ -849,23 +849,20 @@ int ModApiMapgen::l_get_mapgen_edges(lua_State *L)
 	// MapSettingsManager::makeMapgenParams cannot be used here because it would
 	// make mapgen settings immutable from then on. Mapgen settings should stay
 	// mutable until after mod loading ends.
+	std::unique_ptr<MapgenParams> params(settingsmgr->makeMapgenParamsCopy());
 
 	s16 mapgen_limit;
 	if (lua_isnumber(L, 1)) {
-		 mapgen_limit = lua_tointeger(L, 1);
+		mapgen_limit = lua_tointeger(L, 1);
 	} else {
-		std::string mapgen_limit_str;
-		settingsmgr->getMapSetting("mapgen_limit", &mapgen_limit_str);
-		mapgen_limit = stoi(mapgen_limit_str, 0, MAX_MAP_GENERATION_LIMIT);
+		mapgen_limit = params->mapgen_limit;
 	}
 
-	s16 chunksize;
+	v3s16 chunksize;
 	if (lua_isnumber(L, 2)) {
-		chunksize = lua_tointeger(L, 2);
+		chunksize = v3s16(lua_tointeger(L, 2));
 	} else {
-		std::string chunksize_str;
-		settingsmgr->getMapSetting("chunksize", &chunksize_str);
-		chunksize = stoi(chunksize_str, -32768, 32767);
+		chunksize = params->chunksize;
 	}
 
 	std::pair<s16, s16> edges = get_mapgen_edges(mapgen_limit, chunksize);
