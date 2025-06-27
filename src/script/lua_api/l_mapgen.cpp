@@ -871,6 +871,22 @@ int ModApiMapgen::l_get_mapgen_edges(lua_State *L)
 	return 2;
 }
 
+// get_mapgen_chunksize()
+int ModApiMapgen::l_get_mapgen_chunksize(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+
+	const MapSettingsManager *settingsmgr = getEmergeManager(L)->map_settings_mgr;
+
+	// MapSettingsManager::makeMapgenParams cannot be used here because it would
+	// make mapgen settings immutable from then on. Mapgen settings should stay
+	// mutable until after mod loading ends.
+	std::unique_ptr<MapgenParams> params(settingsmgr->makeMapgenParamsCopy());
+
+	push_v3s16(L, params->chunksize);
+	return 1;
+}
+
 // get_mapgen_setting(name)
 int ModApiMapgen::l_get_mapgen_setting(lua_State *L)
 {
@@ -2022,6 +2038,7 @@ void ModApiMapgen::Initialize(lua_State *L, int top)
 	API_FCT(get_mapgen_params);
 	API_FCT(set_mapgen_params);
 	API_FCT(get_mapgen_edges);
+	API_FCT(get_mapgen_chunksize);
 	API_FCT(get_mapgen_setting);
 	API_FCT(set_mapgen_setting);
 	API_FCT(get_mapgen_setting_noiseparams);
@@ -2064,6 +2081,7 @@ void ModApiMapgen::InitializeEmerge(lua_State *L, int top)
 	API_FCT(get_seed);
 	API_FCT(get_mapgen_params);
 	API_FCT(get_mapgen_edges);
+	API_FCT(get_mapgen_chunksize);
 	API_FCT(get_mapgen_setting);
 	API_FCT(get_mapgen_setting_noiseparams);
 	API_FCT(get_noiseparams);
