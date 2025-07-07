@@ -1313,16 +1313,11 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 				if (!baseimg)
 					baseimg = driver->createImage(video::ECF_A8R8G8B8, dim);
 
-				core::position2d<s32> pos_base(0, 0);
 				core::position2d<s32> clippos(0, 0);
 				clippos.Y = dim.Height * (100-percent) / 100;
 				core::dimension2d<u32> clipdim = dim;
 				clipdim.Height = clipdim.Height * percent / 100 + 1;
-				core::rect<s32> cliprect(clippos, clipdim);
-				img->copyToWithAlpha(baseimg, pos_base,
-						core::rect<s32>(v2s32(0,0), dim),
-						video::SColor(255,255,255,255),
-						&cliprect);
+				blit_with_alpha(img, baseimg, clippos, clipdim);
 				img->drop();
 			}
 		}
@@ -1357,16 +1352,11 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 			video::IImage *img = driver->createImage(video::ECF_A8R8G8B8,
 					frame_size);
 
-			// Fill target image with transparency
-			img->fill(video::SColor(0,0,0,0));
-
 			core::dimension2d<u32> dim = frame_size;
 			core::position2d<s32> pos_dst(0, 0);
 			core::position2d<s32> pos_src(0, frame_index * frame_size.Y);
-			baseimg->copyToWithAlpha(img, pos_dst,
-					core::rect<s32>(pos_src, dim),
-					video::SColor(255,255,255,255),
-					NULL);
+			baseimg->copyTo(img, pos_dst,
+					core::rect<s32>(pos_src, dim), nullptr);
 			// Replace baseimg
 			baseimg->drop();
 			baseimg = img;
@@ -1626,12 +1616,10 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 
 			video::IImage *img = driver->createImage(
 					video::ECF_A8R8G8B8, tile_dim);
-			img->fill(video::SColor(0,0,0,0));
 
 			v2u32 vdim(tile_dim);
 			core::rect<s32> rect(v2s32(x0 * vdim.X, y0 * vdim.Y), tile_dim);
-			baseimg->copyToWithAlpha(img, v2s32(0), rect,
-					video::SColor(255,255,255,255), NULL);
+			baseimg->copyTo(img, v2s32(0), rect, nullptr);
 
 			// Replace baseimg
 			baseimg->drop();
