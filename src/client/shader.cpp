@@ -163,10 +163,10 @@ class ShaderCallback : public video::IShaderConstantSetCallBack
 
 public:
 	template <typename Factories>
-	ShaderCallback(const Factories &factories)
+	ShaderCallback(const std::string &name, const Factories &factories)
 	{
 		for (auto &&factory : factories) {
-			auto *setter = factory->create();
+			auto *setter = factory->create(name);
 			if (setter)
 				m_setters.emplace_back(setter);
 		}
@@ -328,7 +328,7 @@ public:
 class MainShaderUniformSetterFactory : public IShaderUniformSetterFactory
 {
 public:
-	virtual IShaderUniformSetter* create()
+	virtual IShaderUniformSetter* create(const std::string &name)
 		{ return new MainShaderUniformSetter(); }
 };
 
@@ -746,8 +746,8 @@ ShaderInfo ShaderSource::generateShader(const std::string &name,
 		geometry_shader_ptr = geometry_shader.c_str();
 	}
 
-	auto cb = make_irr<ShaderCallback>(m_uniform_factories);
 	infostream << "Compiling high level shaders for " << log_name << std::endl;
+	auto cb = make_irr<ShaderCallback>(name, m_uniform_factories);
 	s32 shadermat = gpu->addHighLevelShaderMaterial(
 		vertex_shader.c_str(), fragment_shader.c_str(), geometry_shader_ptr,
 		log_name.c_str(), scene::EPT_TRIANGLES, scene::EPT_TRIANGLES, 0,

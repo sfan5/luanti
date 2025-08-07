@@ -59,6 +59,10 @@ namespace video {
 class IShaderUniformSetter {
 public:
 	virtual ~IShaderUniformSetter() = default;
+	/**
+	 * Called when uniforms need to be updated
+	 * @param services interface for setting uniforms
+	 */
 	virtual void onSetUniforms(video::IMaterialRendererServices *services) = 0;
 	virtual void onSetMaterial(const video::SMaterial& material)
 	{ }
@@ -68,7 +72,12 @@ public:
 class IShaderUniformSetterFactory {
 public:
 	virtual ~IShaderUniformSetterFactory() = default;
-	virtual IShaderUniformSetter* create() = 0;
+	/**
+	 * Called to create an uniform setter for a specific shader
+	 * @param name name of the shader
+	 * @return new uniform setter (or nullptr). caller takes ownership.
+	 */
+	virtual IShaderUniformSetter* create(const std::string &name) = 0;
 };
 
 

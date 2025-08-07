@@ -401,8 +401,11 @@ public:
 		created_nosky.clear();
 	}
 
-	virtual IShaderUniformSetter* create()
+	virtual IShaderUniformSetter* create(const std::string &name)
 	{
+		// This could potentially be a whitelist instead of a blacklist.
+		if (str_starts_with(name, "shadow_"))
+			return nullptr;
 		auto *scs = new GameGlobalShaderUniformSetter(m_sky, m_client);
 		if (!m_sky)
 			created_nosky.push_back(scs);
