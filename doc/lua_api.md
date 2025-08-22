@@ -5841,6 +5841,8 @@ Utilities
       object_guids = true,
       -- The NodeTimer `on_timer` callback is passed additional `node` and `timeout` args (5.14.0)
       on_timer_four_args = true,
+      -- 'chunksize' mapgen setting can be a vector, instead of a single number (5.14.0)
+      chunksize_vector = true,
   }
   ```
 
