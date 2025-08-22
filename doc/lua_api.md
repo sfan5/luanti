@@ -5845,6 +5845,8 @@ Utilities
       on_timer_four_args = true,
       -- `ParticleSpawner` definition supports `exclude_player` field (5.14.0)
       particlespawner_exclude_player = true,
+      -- 'chunksize' mapgen setting can be a vector, instead of a single number (5.14.0)
+      chunksize_vector = true,
   }
   ```
 
