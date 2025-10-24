@@ -429,32 +429,12 @@ public:
 
 	void onGenerate(const std::string &name, ShaderConstants &constants) override
 	{
-		if (constants.find("DRAWTYPE") == constants.end())
+		if (constants.find("MATERIAL_TYPE") == constants.end())
 			return; // not a node shader
-		[[maybe_unused]] const auto drawtype =
-			static_cast<NodeDrawType>(std::get<int>(constants["DRAWTYPE"]));
 		[[maybe_unused]] const auto material_type =
 			static_cast<MaterialType>(std::get<int>(constants["MATERIAL_TYPE"]));
 
 #define PROVIDE(constant) constants[ #constant ] = (int)constant
-
-		PROVIDE(NDT_NORMAL);
-		PROVIDE(NDT_AIRLIKE);
-		PROVIDE(NDT_LIQUID);
-		PROVIDE(NDT_FLOWINGLIQUID);
-		PROVIDE(NDT_GLASSLIKE);
-		PROVIDE(NDT_ALLFACES);
-		PROVIDE(NDT_ALLFACES_OPTIONAL);
-		PROVIDE(NDT_TORCHLIKE);
-		PROVIDE(NDT_SIGNLIKE);
-		PROVIDE(NDT_PLANTLIKE);
-		PROVIDE(NDT_FENCELIKE);
-		PROVIDE(NDT_RAILLIKE);
-		PROVIDE(NDT_NODEBOX);
-		PROVIDE(NDT_GLASSLIKE_FRAMED);
-		PROVIDE(NDT_FIRELIKE);
-		PROVIDE(NDT_GLASSLIKE_FRAMED_OPTIONAL);
-		PROVIDE(NDT_PLANTLIKE_ROOTED);
 
 		PROVIDE(TILE_MATERIAL_BASIC);
 		PROVIDE(TILE_MATERIAL_ALPHA);

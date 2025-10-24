@@ -791,7 +791,7 @@ u32 IShaderSource::getShader(const std::string &name,
 {
 	ShaderConstants input_const;
 	input_const["MATERIAL_TYPE"] = (int)material_type;
-	input_const["DRAWTYPE"] = (int)drawtype;
+	(void) drawtype; // unused
 
 	video::E_MATERIAL_TYPE base_mat = video::EMT_SOLID;
 	switch (material_type) {
