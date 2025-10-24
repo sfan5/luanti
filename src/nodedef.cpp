@@ -352,7 +352,7 @@ void PreLoadedTextures::printStats(std::ostream &to) const
 	size_t unused = 0;
 	for (auto &it : pool)
 		unused += it.second.used ? 0 : 1;
-	to << "pre: " << pool.size() << "\nwasted: " << unused
+	to << "PreLoadedTextures: " << pool.size() << "\n  wasted: " << unused
 		<< " missed: " << missed.size() << std::endl;
 }
 #endif
@@ -1066,6 +1066,7 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 	const auto &getNodeShader = [&] (MaterialType my_material, NodeDrawType my_drawtype) {
 		ShaderIds ret;
 		ret.normal = shdsrc->getShader("nodes_shader", my_material, my_drawtype);
+		// need to avoid generating the shader if unsupported
 		if (texture_2d_array)
 			ret.with_layers = shdsrc->getShader("nodes_shader", my_material, my_drawtype, true);
 		return ret;
@@ -1707,8 +1708,7 @@ void NodeDefManager::updateTextures(IGameDef *gamedef, void *progress_callback_a
 		num_preloadable += it.second.size();
 	}
 	PreLoadedTextures plt;
-	const auto &doBunch = [&] (core::dimension2du dim, const std::vector<std::string> &bunch) {
-		rawstream << dim.Width << "x" << dim.Height << " b: " << bunch.size() << std::endl;
+	const auto &doBunch = [&] (const std::vector<std::string> &bunch) {
 		PreLoadedTexture t;
 		t.texture = tsrc->addArrayTexture(bunch, &t.texture_id);
 		preload_progress += bunch.size();
@@ -1729,12 +1729,12 @@ void NodeDefManager::updateTextures(IGameDef *gamedef, void *progress_callback_a
 		for (auto &image : it.second) {
 			bunch.emplace_back(image);
 			if (bunch.size() == arraymax) {
-				doBunch(core::dimension2du(it.first), bunch);
+				doBunch(bunch);
 				bunch.clear();
 			}
 		}
 		if (!bunch.empty())
-			doBunch(core::dimension2du(it.first), bunch);
+			doBunch(bunch);
 	}
 	// note that standard textures aren't preloaded
 
@@ -1749,10 +1749,10 @@ void NodeDefManager::updateTextures(IGameDef *gamedef, void *progress_callback_a
 			0.66666f + 0.33333f * i / size);
 	}
 	SORT_AND_UNIQUE(m_leaves_materials);
-	infostream << "m_leaves_materials.size() = " << m_leaves_materials.size()
+	verbosestream << "m_leaves_materials.size() = " << m_leaves_materials.size()
 		<< std::endl;
 
-	plt.printStats(rawstream);
+	plt.printStats(infostream);
 	tsrc->setImageCaching(false);
 }
 #endif
