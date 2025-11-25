@@ -1881,6 +1881,7 @@ void Client::handleCommand_MinimapModes(NetworkPacket *pkt)
 void Client::handleCommand_SetLighting(NetworkPacket *pkt)
 {
 	Lighting& lighting = m_env.getLocalPlayer()->getLighting();
+	auto &s = lighting.static_;
 
 	*pkt >> lighting.shadow_intensity;
 	do {
@@ -1914,5 +1915,11 @@ void Client::handleCommand_SetLighting(NetworkPacket *pkt)
 			break;
 		// >= 5.16.0-dev
 		*pkt >> lighting.shadow_direction;
+		if (!pkt->hasRemainingBytes())
+			break;
+		// >= 5.17.0-dev
+		*pkt >> s.light_curve_set;
+		if (s.light_curve_set)
+			pkt->readRawString(reinterpret_cast<char*>(s.light_curve), sizeof(s.light_curve));
 	} while (0);
 }
