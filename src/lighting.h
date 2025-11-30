@@ -50,8 +50,12 @@ struct StaticLighting
 {
 	static constexpr int LIGHT_CURVE_SIZE = 16;
 
+	// Light curve: used to decode map light (0-15) into intensity (0-255)
 	bool light_curve_set = false;
 	u8 light_curve[LIGHT_CURVE_SIZE];
+
+	// Ambient occlusion gamma
+	float ao_gamma = 1.8f;
 
 	bool operator==(const StaticLighting &other) const;
 	bool operator!=(const StaticLighting &other) const {

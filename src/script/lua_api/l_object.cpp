@@ -2735,6 +2735,7 @@ int ObjectRef::l_set_lighting(lua_State *L)
 			s.light_curve_set = any;
 		}
 		lua_pop(L, 1); // light_curve
+		getfloatfield(L, -1, "ao_gamma", s.ao_gamma);
 	}
 	lua_pop(L, 1); // static
 
@@ -2803,6 +2804,8 @@ int ObjectRef::l_get_lighting(lua_State *L)
 		}
 	}
 	lua_setfield(L, -2, "light_curve");
+	lua_pushnumber(L, s.ao_gamma);
+	lua_setfield(L, -2, "ao_gamma");
 	lua_setfield(L, -2, "static");
 
 	return 1;

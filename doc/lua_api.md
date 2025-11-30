@@ -9156,6 +9156,9 @@ child will follow movement and rotation of that bone.
           * table containing 16 numbers or an empty table to reset to the default
           * The values should be monotonically increasing and the last value should
             be 255. Otherwise there might be lighting bugs.
+        * `ao_gamma`: Strength of node ambient-occlusion shading. Lower is darker, Higher is lighter.
+          * Recommended range: from 0.25 to 3.0, default: 1.8
+          * A value of 0.0 will disable this shading entirely.
 
 * `get_lighting()`: returns the current state of lighting for the player.
     * Result is a table with the same fields as `light_definition` in `set_lighting`.
