@@ -8,7 +8,8 @@
 
 bool StaticLighting::operator==(const StaticLighting &other) const
 {
-	if (light_curve_set != other.light_curve_set)
+	if (light_curve_set != other.light_curve_set ||
+		ao_gamma != other.ao_gamma)
 		return false;
 	if (light_curve_set && memcmp(light_curve, other.light_curve, sizeof(light_curve)) != 0)
 		return false;
