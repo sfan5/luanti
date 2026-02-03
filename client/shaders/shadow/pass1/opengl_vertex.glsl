@@ -8,7 +8,7 @@ uniform float zPerspectiveBias;
 
 CENTROID_ VARYING_ mediump vec2 varTexCoord;
 #ifdef USE_ARRAY_TEXTURE
-flat VARYING_ int varTexLayer;
+flat VARYING_ uint varTexLayer;
 #endif
 
 vec4 getRelativePosition(in vec4 position)
@@ -47,6 +47,6 @@ void main()
 
 	varTexCoord = (mTexture * vec4(inTexCoord0.xy, 1.0, 1.0)).st;
 #ifdef USE_ARRAY_TEXTURE
-	varTexLayer = int(inVertexAux);
+	varTexLayer = inVertexAux;
 #endif
 }
