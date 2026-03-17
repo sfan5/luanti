@@ -1601,7 +1601,7 @@ void Client::handleCommand_Camera(NetworkPacket* pkt)
 	cam.allowed_mode = static_cast<CameraMode>(tmp);
 	if (pkt->hasRemainingBytes()) {
 		// >= 5.16.0-dev
-		*pkt >> cam.yaw_limit >> cam.pitch_limit;
+		*pkt >> cam.free_mouse >> cam.yaw_limit >> cam.pitch_limit;
 	}
 
 	m_client_event_queue.push(new ClientEvent(CE_UPDATE_CAMERA));

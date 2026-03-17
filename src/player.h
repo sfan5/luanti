@@ -135,6 +135,7 @@ enum CameraMode : int {
 struct PlayerCameraSpec
 {
 	CameraMode allowed_mode = CAMERA_MODE_ANY;
+	bool free_mouse = false;
 	v2f yaw_limit = INVALID_LIMIT; // (min, max)
 	v2f pitch_limit = INVALID_LIMIT; // (min, max)
 
@@ -146,7 +147,8 @@ struct PlayerCameraSpec
 	}
 
 	inline bool operator==(const PlayerCameraSpec &other) const {
-		return allowed_mode == other.allowed_mode && yaw_limit == other.yaw_limit &&
+		return allowed_mode == other.allowed_mode &&
+			free_mouse == other.free_mouse && yaw_limit == other.yaw_limit &&
 			pitch_limit == other.pitch_limit;
 	}
 	inline bool operator!=(const PlayerCameraSpec &other) const {

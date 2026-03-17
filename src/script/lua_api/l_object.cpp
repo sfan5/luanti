@@ -555,6 +555,7 @@ int ObjectRef::l_set_camera(lua_State *L)
 		getfloatfield(L, -1, "max", cam.pitch_limit.Y);
 	}
 	lua_pop(L, 1);
+	getboolfield(L, -1, "free_mouse", cam.free_mouse);
 
 	if (cam != player->camera) {
 		player->camera = cam;
@@ -587,6 +588,7 @@ int ObjectRef::l_get_camera(lua_State *L)
 		setfloatfield(L, -1, "max", cam.pitch_limit.Y);
 		lua_setfield(L, -2, "pitch_limit");
 	}
+	setboolfield(L, -1, "free_mouse", cam.free_mouse);
 
 	return 1;
 }

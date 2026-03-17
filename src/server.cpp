@@ -2056,7 +2056,7 @@ void Server::SendCamera(session_t peer_id, Player *player)
 	const auto &cam = player->camera;
 
 	pkt << static_cast<u8>(cam.allowed_mode);
-	pkt << cam.yaw_limit << cam.pitch_limit;
+	pkt << cam.free_mouse << cam.yaw_limit << cam.pitch_limit;
 
 	Send(&pkt);
 }

@@ -1927,19 +1927,16 @@ void Game::updateCameraDirection(CameraOrientation *cam, float dtime)
 {
 	auto *cur_control = device->getCursorControl();
 
-	/* On Linux and Windows, enabling relative mouse mode somehow results
-	in simulated mouse events being generated from touch events, even though
-	SDL_HINT_MOUSE_TOUCH_EVENTS and SDL_HINT_TOUCH_MOUSE_EVENTS are set to 0.
-	Since we have our own code to synthesize mouse events from touch events,
-	this results in duplicated input. To avoid that, we don't enable relative
-	mouse mode if we're in touchscreen mode. */
-	if (cur_control)
-		cur_control->setRelativeMode(!g_touchcontrols && !isMenuActive());
-
-	if ((device->isWindowActive() && device->isWindowFocused()
-			&& !isMenuActive()) || input->isRandom()) {
-
+	if (isMouseLocked()) {
 		if (cur_control && !input->isRandom()) {
+			/* On Linux and Windows, enabling relative mouse mode somehow results
+			in simulated mouse events being generated from touch events, even though
+			SDL_HINT_MOUSE_TOUCH_EVENTS and SDL_HINT_TOUCH_MOUSE_EVENTS are set to 0.
+			Since we have our own code to synthesize mouse events from touch events,
+			this results in duplicated input. To avoid that, we don't enable relative
+			mouse mode if we're in touchscreen mode. */
+			cur_control->setRelativeMode(!g_touchcontrols);
+
 			// macOS gets upset if this is set every frame
 			if (cur_control->isVisible())
 				cur_control->setVisible(false);
@@ -1955,6 +1952,8 @@ void Game::updateCameraDirection(CameraOrientation *cam, float dtime)
 		}
 
 	} else {
+		if (cur_control)
+			cur_control->setRelativeMode(false);
 		// macOS gets upset if this is set every frame
 		if (cur_control && !cur_control->isVisible())
 			cur_control->setVisible(true);
@@ -1975,6 +1974,18 @@ f32 Game::getSensitivityScaleFactor() const
 	// 16:9 aspect ratio to minimize disruption of existing sensitivity
 	// settings.
 	return std::tan(fov_y / 2.0f) * 1.3763819f;
+}
+
+bool Game::isMouseLocked() const
+{
+	if (input->isRandom())
+		return true;
+	if (!device->isWindowActive() || !device->isWindowFocused())
+		return false;
+	LocalPlayer *player = client->getEnv().getLocalPlayer();
+	if (player && player->camera.free_mouse)
+		return false;
+	return !isMenuActive();
 }
 
 bool Game::isTouchShootlineUsed() const
