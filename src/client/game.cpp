@@ -50,6 +50,7 @@
 #include "hud.h"
 #include <AnimatedMeshSceneNode.h>
 #include <ICameraSceneNode.h>
+#include <ISceneCollisionManager.h>
 #include "util/tracy_wrapper.h"
 #include "item_visuals_manager.h"
 
@@ -1988,6 +1989,14 @@ bool Game::isMouseLocked() const
 	return !isMenuActive();
 }
 
+bool Game::isMouseShootlineUsed() const
+{
+	// TODO: in this mode we should also allow clicking the hotbar
+	// see TouchControls::resetHotbarRects()
+	LocalPlayer *player = client->getEnv().getLocalPlayer();
+	return player && player->camera.free_mouse;
+}
+
 bool Game::isTouchShootlineUsed() const
 {
 	return g_touchcontrols && g_touchcontrols->isShootlineAvailable() &&
@@ -2007,9 +2016,10 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 		v2s32 center(driver->getScreenSize().Width / 2, driver->getScreenSize().Height / 2);
 		v2s32 dist = input->getMousePos() - center;
 
-		if (m_invert_mouse || camera->getCameraMode() == CAMERA_MODE_THIRD_FRONT) {
+		if (m_invert_mouse)
 			dist.Y = -dist.Y;
-		}
+		if (camera->getCameraMode() == CAMERA_MODE_THIRD_FRONT)
+			dist.Y = -dist.Y;
 
 		cam->camera_yaw   -= dist.X * m_cache_mouse_sensitivity * sens_scale;
 		cam->camera_pitch += dist.Y * m_cache_mouse_sensitivity * sens_scale;
@@ -2681,11 +2691,10 @@ void Game::processPlayerInteraction(f32 dtime, bool show_hud)
 {
 	LocalPlayer *player = client->getEnv().getLocalPlayer();
 
-	const v3f camera_direction = camera->getDirection();
 	const v3s16 camera_offset  = camera->getOffset();
 
 	/*
-		Calculate what block is the crosshair pointing to
+		Find out what we are pointing at
 	*/
 
 	ItemStack selected_item, hand_item;
@@ -2696,33 +2705,41 @@ void Game::processPlayerInteraction(f32 dtime, bool show_hud)
 
 	core::line3d<f32> shootline;
 
-	switch (camera->getCameraMode()) {
-	case CAMERA_MODE_ANY:
-		assert(false);
-		break;
-	case CAMERA_MODE_FIRST:
-		// Shoot from camera position, with bobbing
-		shootline.start = camera->getPosition();
-		break;
-	case CAMERA_MODE_THIRD:
-		// Shoot from player head, no bobbing
-		shootline.start = camera->getHeadPosition();
-		break;
-	case CAMERA_MODE_THIRD_FRONT:
-		shootline.start = camera->getHeadPosition();
-		// prevent player pointing anything in front-view
-		d = 0;
-		break;
-	}
-	shootline.end = shootline.start + camera_direction * BS * d;
-
 	if (isTouchShootlineUsed()) {
 		shootline = g_touchcontrols->getShootline();
-		// Scale shootline to the acual distance the player can reach
+		// Scale shootline to the actual distance the player can reach
 		shootline.end = shootline.start +
 				shootline.getVector().normalize() * BS * d;
-		shootline.start += intToFloat(camera_offset, BS);
-		shootline.end += intToFloat(camera_offset, BS);
+		shootline += intToFloat(camera_offset, BS);
+	} else if (isMouseShootlineUsed()) {
+		shootline = device
+				->getSceneManager()
+				->getSceneCollisionManager()
+				->getRayFromScreenCoordinates(input->getMousePos());
+		// Scale shootline to the actual distance the player can reach
+		shootline.end = shootline.start +
+				shootline.getVector().normalize() * BS * d;
+		shootline += intToFloat(camera_offset, BS);
+	} else {
+		const v3f camera_direction = camera->getDirection();
+		switch (camera->getCameraMode()) {
+		case CAMERA_MODE_ANY:
+			assert(false);
+		case CAMERA_MODE_FIRST:
+			// Shoot from camera position, with bobbing
+			shootline.start = camera->getPosition();
+			break;
+		case CAMERA_MODE_THIRD:
+			// Shoot from player head, no bobbing
+			shootline.start = camera->getHeadPosition();
+			break;
+		case CAMERA_MODE_THIRD_FRONT:
+			shootline.start = camera->getHeadPosition();
+			// prevent player pointing anything in front-view
+			d = 0;
+			break;
+		}
+		shootline.end = shootline.start + camera_direction * BS * d;
 	}
 
 	PointedThing pointed = updatePointedThing(shootline,
@@ -2733,6 +2750,10 @@ void Game::processPlayerInteraction(f32 dtime, bool show_hud)
 
 	if (pointed != runData.pointed_old)
 		infostream << "Pointing at " << pointed.dump() << std::endl;
+
+	/*
+		Update everything accordingly
+	*/
 
 	if (g_touchcontrols) {
 		auto mode = selected_def.touch_interaction.getMode(selected_def, pointed.type);
@@ -3696,7 +3717,7 @@ void Game::drawScene(ProfilerGraph *graph, RunStats *stats)
 			(player->hud_flags & HUD_FLAG_CROSSHAIR_VISIBLE) &&
 			(this->camera->getCameraMode() != CAMERA_MODE_THIRD_FRONT));
 
-	if (isTouchShootlineUsed())
+	if (isTouchShootlineUsed() || isMouseShootlineUsed())
 		draw_crosshair = false;
 
 	this->m_rendering_engine->draw_scene(sky_color, this->m_game_ui->m_flags.show_hud,

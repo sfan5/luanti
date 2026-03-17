@@ -541,6 +541,7 @@ int ObjectRef::l_set_camera(lua_State *L)
 	if (lua_isstring(L, -1))
 		string_to_enum(es_CameraMode, cam.allowed_mode, lua_tostring(L, -1));
 	lua_pop(L, 1);
+	getboolfield(L, -1, "free_mouse", cam.free_mouse);
 	lua_getfield(L, -1, "yaw_limit");
 	if (lua_istable(L, -1)) {
 		cam.yaw_limit = PlayerCameraSpec::INVALID_LIMIT;
@@ -555,7 +556,6 @@ int ObjectRef::l_set_camera(lua_State *L)
 		getfloatfield(L, -1, "max", cam.pitch_limit.Y);
 	}
 	lua_pop(L, 1);
-	getboolfield(L, -1, "free_mouse", cam.free_mouse);
 
 	if (cam != player->camera) {
 		player->camera = cam;
@@ -576,6 +576,7 @@ int ObjectRef::l_get_camera(lua_State *L)
 
 	lua_newtable(L);
 	setstringfield(L, -1, "mode", enum_to_string(es_CameraMode, cam.allowed_mode));
+	setboolfield(L, -1, "free_mouse", cam.free_mouse);
 	if (cam.yawValid()) {
 		lua_newtable(L);
 		setfloatfield(L, -1, "min", cam.yaw_limit.X);
@@ -588,7 +589,6 @@ int ObjectRef::l_get_camera(lua_State *L)
 		setfloatfield(L, -1, "max", cam.pitch_limit.Y);
 		lua_setfield(L, -2, "pitch_limit");
 	}
-	setboolfield(L, -1, "free_mouse", cam.free_mouse);
 
 	return 1;
 }

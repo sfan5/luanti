@@ -286,8 +286,11 @@ private:
 	static const ClientEventHandler clientEventHandler[CLIENTEVENT_MAX];
 
 	f32 getSensitivityScaleFactor() const;
-	/// @return true if mouse is locked the center (and moves the camera)
+	/// @return true if mouse is locked the center and moves the camera
 	bool isMouseLocked() const;
+	/// @return true if shootline is determined by the mouse position
+	/// (NOT the normal way using the crosshair)
+	bool isMouseShootlineUsed() const;
 	/// @return true if shootline is determined by touch controls
 	bool isTouchShootlineUsed() const;
 
