@@ -1895,6 +1895,8 @@ Displays text on the HUD.
 * `offset`: offset in pixels from position.
 * `size`: size of the text.
   The player-set font size is multiplied by size.x (y value isn't used).
+    * Float values are supported by clients >= 5.16.0. Older clients will receive
+      a rounded down integer value.
 * `style`: determines font style
   Bitfield with 1 = bold, 2 = italic, 4 = monospace
 
