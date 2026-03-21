@@ -1063,12 +1063,8 @@ bool Game::connectToServer(const GameStartData &start_data,
 			if (*connection_aborted)
 				break;
 
-			if (client->accessDenied()) {
-				*error_message = fmtgettext("Access denied. Reason: %s", client->accessDeniedReason().c_str());
-				*reconnect_requested = client->reconnectRequested();
-				errorstream << *error_message << std::endl;
+			if (!checkConnection())
 				break;
-			}
 
 			if (input->cancelPressed()) {
 				*connection_aborted = true;
@@ -1210,10 +1206,14 @@ inline void Game::updateInteractTimers(f32 dtime)
 
 /* returns false if game should exit, otherwise true
  */
-inline bool Game::checkConnection()
+bool Game::checkConnection()
 {
 	if (client->accessDenied()) {
-		*error_message = fmtgettext("Access denied. Reason: %s", client->accessDeniedReason().c_str());
+		// May be mod-provided, thus may contain color and translation
+		const std::string reason = wide_to_utf8(
+			unescape_translate(utf8_to_wide(client->accessDeniedReason())));
+
+		*error_message = fmtgettext("Access denied. Reason: %s", reason.c_str());
 		*reconnect_requested = client->reconnectRequested();
 		errorstream << *error_message << std::endl;
 		return false;
