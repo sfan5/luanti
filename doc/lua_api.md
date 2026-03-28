@@ -9239,7 +9239,25 @@ child will follow movement and rotation of that bone.
       - `first`: first-person camera
       - `third`: third-person camera
       - `third_front`: third-person camera, looking opposite of movement direction
-    * Supported by client since 5.12.0.
+      * (supported by clients since 5.12.0)
+    * `free_mouse`: If true, the mouse points freely to anything in view.
+      If false (default), the mouse is locked to the center and controls the
+      camera angle/direction.
+    * `yaw_limit`: Limits the possible camera yaw.
+      Either `{min=<number>, max=<number>}` to limit to a range
+      or `false` to leave the yaw unrestricted (default).
+      Thee usable range is [0, 720]. Usually you will only need [0, 360],
+      but to restrict the yaw to e.g. between -90° and 90° you need to specify
+      `{min=270, max=450}`.
+    * `pitch_limit`: Limits the possible camera pitch.
+      Either `{min=<number>, max=<number>}` to limit to a range
+      or `false` to leave the pitch unrestricted (default).
+      range: [-90, 90]
+    * Note that restricting yaw and pitch to a single value will not automatically
+      "unlock" the mouse cursor, modify `free_mouse` for that.
+      Conversely, unlocking the mouse does not automatically prevent the camera
+      from moving (e.g. due to joystick input).
+    * (`free_mouse`, `yaw_limit` and `pitch_limit` supported by clients since 5.16.0)
 * `get_camera()`: Returns the camera parameters as a table as above.
 * `send_mapblock(blockpos)`:
     * Sends an already loaded mapblock to the player.

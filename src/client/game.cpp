@@ -1992,7 +1992,7 @@ bool Game::isMouseLocked() const
 bool Game::isMouseShootlineUsed() const
 {
 	// TODO: in this mode we should also allow clicking the hotbar
-	// see TouchControls::resetHotbarRects()
+	// see TouchControls::registerHotbarRect() etc
 	LocalPlayer *player = client->getEnv().getLocalPlayer();
 	return player && player->camera.free_mouse;
 }
