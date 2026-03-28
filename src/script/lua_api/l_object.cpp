@@ -535,7 +535,7 @@ int ObjectRef::l_set_camera(lua_State *L)
 
 	const auto &read_v2f_limit = [L] (int idx, v2f &to) {
 		if (lua_isboolean(L, idx) && !lua_toboolean(L, idx)) {
-			to = PlayerCameraSpec::INVALID_LIMIT;
+			to = PlayerCameraSpec::INVALID_LIMIT; // false resets
 		} else if (!lua_isnoneornil(L, idx)) {
 			luaL_checktype(L, idx, LUA_TTABLE);
 			to = PlayerCameraSpec::INVALID_LIMIT;
@@ -546,19 +546,25 @@ int ObjectRef::l_set_camera(lua_State *L)
 
 	PlayerCameraSpec cam = player->camera;
 
+	if (lua_isnoneornil(L, 2)) {
+		cam = PlayerCameraSpec(); // nil resets
+		goto skip;
+	}
+
 	luaL_checktype(L, 2, LUA_TTABLE);
-	lua_getfield(L, -1, "mode");
+	lua_getfield(L, 2, "mode");
 	if (lua_isstring(L, -1))
 		string_to_enum(es_CameraMode, cam.allowed_mode, lua_tostring(L, -1));
 	lua_pop(L, 1);
-	getboolfield(L, -1, "free_mouse", cam.free_mouse);
-	lua_getfield(L, -1, "yaw_limit");
+	getboolfield(L, 2, "free_mouse", cam.free_mouse);
+	lua_getfield(L, 2, "yaw_limit");
 	read_v2f_limit(-1, cam.yaw_limit);
 	lua_pop(L, 1);
-	lua_getfield(L, -1, "pitch_limit");
+	lua_getfield(L, 2, "pitch_limit");
 	read_v2f_limit(-1, cam.pitch_limit);
 	lua_pop(L, 1);
 
+skip:
 	if (cam != player->camera) {
 		player->camera = cam;
 		getServer(L)->SendCamera(player->getPeerId(), player);

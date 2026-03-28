@@ -5993,7 +5993,7 @@ Utilities
       remove_item_match_meta = true,
       -- The HTTP API supports the HEAD and PATCH methods (5.12.0)
       httpfetch_additional_methods = true,
-      -- objects have get_guid method (5.13.0)
+      -- `ObjectRef:get_guid()` method exists (5.13.0)
       object_guids = true,
       -- The NodeTimer `on_timer` callback is passed additional `node` and `timeout` args (5.14.0)
       on_timer_four_args = true,
@@ -6006,8 +6006,10 @@ Utilities
       -- Item definition fields `inventory_image`, `inventory_overlay`, `wield_image`
       -- and `wield_overlay` accept a table containing animation definitions. (5.15.0)
       item_image_animation = true,
-      -- `core.get_modnames`' parameter `load_order` (5.16.0)
+      -- `core.get_modnames` has parameter `load_order` (5.16.0)
       get_modnames_load_order = true,
+      -- `ObjectRef:set_camera()` accepts `nil` to indicate reset (5.16.0)
+      set_camera_resettable = true,
   }
   ```
 
@@ -9233,7 +9235,9 @@ child will follow movement and rotation of that bone.
       Same limits as for `thirdperson_back` apply.
       Defaults to `thirdperson_back` if unspecified.
 * `get_eye_offset()`: Returns camera offset vectors as set via `set_eye_offset`.
-* `set_camera(params)`: Sets camera parameters.
+* `set_camera(params)`: Sets camera parameters for the player
+  * `params` must be a table to update the parameters or `nil` to reset all
+    parameters to defaults.
     * `mode`: Defines the camera mode used
       - `any`: free choice between all modes (default)
       - `first`: first-person camera
@@ -9264,9 +9268,10 @@ child will follow movement and rotation of that bone.
     * Returns `false` if nothing was sent (note that this can also mean that
       the client already has the block)
     * Resource intensive - use sparsely
-* `set_lighting(light_definition)`: sets lighting for the player
-    * Passing no arguments resets lighting to its default values.
-    * `light_definition` is a table with the following optional fields:
+* `set_lighting(light_def)`: Sets lighting for the player
+  * `light_def` must be a table to update the parameters or `nil` to reset all
+    light parameters to defaults.
+  * table fields follow:
       * `saturation` sets the saturation (vividness; default: `1.0`).
         * It is applied according to the function `result = b*(1-s) + c*s`, where:
           * `c` is the original color
