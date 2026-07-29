@@ -368,8 +368,8 @@ static void imageTransformInlined(u8 sxn, u8 syn, const video::IImage *src, vide
 	const core::dimension2du dst_dim = dst->getDimension();
 
 	u32 pos[4]; // [x+, x-, y+, y-]
-	for (pos[0] = 0, pos[1] = dst_dim.Height-1; pos[0] < dst_dim.Height; pos[0]++, pos[1]--)
-	for (pos[2] = 0, pos[3] = dst_dim.Width-1; pos[2] < dst_dim.Width; pos[2]++, pos[3]--)
+	for (pos[2] = 0, pos[3] = dst_dim.Height-1; pos[2] < dst_dim.Height; pos[2]++, pos[3]--)
+	for (pos[0] = 0, pos[1] = dst_dim.Width-1; pos[0] < dst_dim.Width; pos[0]++, pos[1]--)
 	{
 		u32 sx = pos[sxn], sy = pos[syn];
 		*dst_data = src_data[src_stride*sy + sx];
