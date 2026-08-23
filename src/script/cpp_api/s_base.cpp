@@ -73,6 +73,12 @@ ScriptApiBase::ScriptApiBase(ScriptingType type):
 
 	lua_atpanic(m_luastack, &luaPanic);
 
+	// reserve r-indices for the engine
+	for (int i = CUSTOM_RIDX_FIRST; i < CUSTOM_RIDX_LAST; i++) {
+		lua_pushlightuserdata(m_luastack, nullptr);
+		lua_rawseti(m_luastack, LUA_REGISTRYINDEX, i);
+	}
+
 	if (m_type == ScriptingType::Client || m_type == ScriptingType::SSCSM)
 		clientOpenLibs(m_luastack);
 	else

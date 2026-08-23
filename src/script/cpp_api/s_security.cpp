@@ -687,7 +687,7 @@ void ScriptApiSecurity::getGlobalsBackup(lua_State *L)
 	}
 	lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_GLOBALS_BACKUP);
 	// We cannot fulfill the callers wish securely if they don't exist.
-	FATAL_ERROR_IF(lua_isnil(L, -1), "Globals backup requested, but it is not available. Cannot proceed securely.");
+	FATAL_ERROR_IF(!lua_istable(L, -1), "Globals backup requested, but it is not available. Cannot proceed securely.");
 }
 
 bool ScriptApiSecurity::safeLoadString(lua_State *L, std::string_view code, const char *chunk_name)

@@ -200,7 +200,7 @@ void script_register_packer(lua_State *L, const char *regname,
 
 	// Save metatable so we can identify instances later
 	lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_METATABLE_MAP);
-	if (lua_isnil(L, -1)) {
+	if (lua_islightuserdata(L, -1)) { // when uninitialized
 		lua_newtable(L);
 		lua_pushvalue(L, -1);
 		lua_rawseti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_METATABLE_MAP);
