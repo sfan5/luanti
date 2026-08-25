@@ -145,7 +145,10 @@ DeprecatedHandlingMode get_deprecated_handling_mode();
  */
 void log_deprecated(lua_State *L, std::string_view message,
 	int stack_depth = 1, bool once = false);
-
-// Safely call string.dump on a function value
-// (does not pop, leaves one value on stack)
-void call_string_dump(lua_State *L, int idx);
+/**
+ * @brief Dumps a function at index to a string
+ *
+ * @throws LuaError if it's unable to dump the function
+ *         the Lua stack state is not defined if this happens.
+ */
+std::string dump_function_to_string(lua_State *L, int idx);

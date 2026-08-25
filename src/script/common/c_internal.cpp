@@ -3,7 +3,6 @@
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "common/c_internal.h"
-#include "cpp_api/s_security.h"
 #include "util/numeric.h"
 #include "debug.h"
 #include "log.h"
@@ -186,14 +185,19 @@ void log_deprecated(lua_State *L, std::string_view message, int stack_depth, boo
 		infostream << script_get_backtrace(L) << std::endl;
 }
 
-void call_string_dump(lua_State *L, int idx)
+static int dump_helper(lua_State*, const void *p, size_t sz, void *ud)
 {
-	// Retrieve string.dump from untampered env
-	ScriptApiSecurity::getGlobalsBackup(L);
-	lua_getfield(L, -1, "string");
-	lua_getfield(L, -1, "dump");
-	lua_remove(L, -2); // remove _G
-	lua_remove(L, -2); // remove 'string' table
+	std::string *result = static_cast<std::string*>(ud);
+	result->append(static_cast<const char*>(p), sz);
+	return 0;
+}
+
+std::string dump_function_to_string(lua_State *L, int idx)
+{
+	std::string result;
 	lua_pushvalue(L, idx);
-	lua_call(L, 1, 1);
+	if (lua_dump(L, &dump_helper, &result) != 0)
+		throw LuaError("Unable to dump function");
+	lua_pop(L, 1);
+	return result;
 }

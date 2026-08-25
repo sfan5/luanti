@@ -372,12 +372,7 @@ static VectorRef<PackedInstr> pack_inner(lua_State *L, int idx, int vidx, Packed
 			if (r)
 				return r;
 			r = emplace(pv, LUA_TFUNCTION);
-			call_string_dump(L, idx);
-			size_t len;
-			const char *str = lua_tolstring(L, -1, &len);
-			assert(str);
-			r->sdata.assign(str, len);
-			lua_pop(L, 1);
+			r->sdata = dump_function_to_string(L, idx);
 			return r;
 		}
 		case LUA_TUSERDATA: {
