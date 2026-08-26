@@ -2549,6 +2549,23 @@ void GUIFormSpecMenu::parseListColors(parserData* data, const std::string &eleme
 	}
 }
 
+void GUIFormSpecMenu::parseListImages(parserData* data, const std::string &element)
+{
+	std::vector<std::string> parts;
+	// Supports:
+	// listimages[<normal>;<hover>]
+	if (!precheckElement("listimages", element, 2, 2, parts))
+		return;
+
+	data->inventorylist_options.slotbgimg_n.grab(!parts[0].empty()
+			? m_tsrc->getTexture(unescape_string(parts[0]))
+			: nullptr);
+
+	data->inventorylist_options.slotbgimg_h.grab(!parts[1].empty()
+			? m_tsrc->getTexture(unescape_string(parts[1]))
+			: nullptr);
+}
+
 void GUIFormSpecMenu::parseTooltip(parserData* data, const std::string &element)
 {
 	std::vector<std::string> parts;
@@ -3118,6 +3135,7 @@ const std::unordered_map<std::string, std::function<void(GUIFormSpecMenu*, GUIFo
 		{"box",                    &GUIFormSpecMenu::parseBox},
 		{"bgcolor",                &GUIFormSpecMenu::parseBackgroundColor},
 		{"listcolors",             &GUIFormSpecMenu::parseListColors},
+		{"listimages",             &GUIFormSpecMenu::parseListImages},
 		{"tooltip",                &GUIFormSpecMenu::parseTooltip},
 		{"hypertip",               &GUIFormSpecMenu::parseHyperTip},
 		{"scrollbar",              &GUIFormSpecMenu::parseScrollBar},
