@@ -7824,12 +7824,13 @@ You can use the gennotify mechanism to transfer this information.
 Server
 ------
 
-* `core.request_shutdown([message],[reconnect],[delay])`: request for
-  server shutdown. Will display `message` to clients.
-    * `reconnect` == true displays a reconnect button
+* `core.request_shutdown([message, [reconnect, [delay]]])`: request for
+  server to shut down
+    * `message`: kick message shown to clients
+    * `reconnect`: if true displays a reconnect button on clients (default: false)
     * `delay` adds an optional delay (in seconds) before shutdown.
-      Negative delay cancels the current active shutdown.
-      Zero delay triggers an immediate shutdown.
+      A negative number cancels the current active shutdown.
+      Zero (the default) triggers an immediate shutdown.
 * `core.cancel_shutdown_requests()`: cancel current delayed shutdown
 * `core.get_server_status(name, joined)`
     * Returns the server status string when a player joins or when the command
