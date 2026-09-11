@@ -113,7 +113,7 @@ void set_default_settings()
 	settings->setDefault("screenshot_format", "png");
 	settings->setDefault("screenshot_quality", "0");
 	settings->setDefault("client_unload_unused_data_timeout", "600");
-	settings->setDefault("client_mapblock_limit", "7500"); // about 120 MB
+	settings->setDefault("client_mapblock_limit", "9300"); // about 145 MB
 	settings->setDefault("enable_build_where_you_stand", "false");
 	settings->setDefault("curl_timeout", "20000");
 	settings->setDefault("secure.curl_proxy", "");
@@ -252,7 +252,7 @@ void set_default_settings()
 	settings->setDefault("tooltip_append_itemname", "false");
 	settings->setDefault("fps_max", "60");
 	settings->setDefault("fps_max_unfocused", "10");
-	settings->setDefault("viewing_range", "220");
+	settings->setDefault("viewing_range", "200");
 	settings->setDefault("client_mesh_chunk", "2");
 	settings->setDefault("screen_w", "1024");
 	settings->setDefault("screen_h", "600");
@@ -449,7 +449,7 @@ void set_default_settings()
 	settings->setDefault("strict_protocol_version_checking", "false");
 	settings->setDefault("protocol_version_min", "1");
 	settings->setDefault("player_transfer_distance", "0");
-	settings->setDefault("max_simultaneous_block_sends_per_client", "60");
+	settings->setDefault("max_simultaneous_block_sends_per_client", "50");
 
 	settings->setDefault("motd", "");
 	settings->setDefault("max_users", "15");
@@ -474,7 +474,7 @@ void set_default_settings()
 	settings->setDefault("profiler_print_interval", "0");
 	settings->setDefault("active_object_send_range_blocks", "8");
 	settings->setDefault("active_block_range", "4");
-	settings->setDefault("max_block_send_distance", "14");
+	settings->setDefault("max_block_send_distance", "13");
 	settings->setDefault("block_send_optimize_distance", "4");
 	settings->setDefault("block_cull_optimize_distance", "25");
 	settings->setDefault("server_side_occlusion_culling", "true");
@@ -536,7 +536,7 @@ void set_default_settings()
 	settings->setDefault("mapgen_limit", "31007");
 	settings->setDefault("chunksize", "5");
 	settings->setDefault("fixed_map_seed", "");
-	settings->setDefault("max_block_generate_distance", "11");
+	settings->setDefault("max_block_generate_distance", "10");
 	settings->setDefault("enable_mapgen_debug_info", "false");
 	Mapgen::setDefaultSettings(settings);
 
@@ -570,12 +570,12 @@ void set_default_settings()
 	settings->setDefault("max_simultaneous_block_sends_per_client", "20");
 	settings->setDefault("emergequeue_limit_diskonly", "32");
 	settings->setDefault("emergequeue_limit_generate", "32");
-	settings->setDefault("max_block_generate_distance", "6");
+	settings->setDefault("max_block_generate_distance", "5");
 	settings->setDefault("sqlite_synchronous", "1");
 	settings->setDefault("server_map_save_interval", "15");
 	settings->setDefault("client_mapblock_limit", "2200"); // about 35 MB
 	settings->setDefault("active_block_range", "3");
-	settings->setDefault("viewing_range", "90");
+	settings->setDefault("viewing_range", "80");
 	settings->setDefault("leaves_style", "simple");
 	// Note: OpenGL ES 2.0 is not guaranteed to provide depth textures,
 	// which we would need for PP.
