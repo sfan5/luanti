@@ -9348,6 +9348,12 @@ You **must not** mix names and track numbers to refer to the same animation.
         * They take both keyboard and joystick input into account.
         * You should prefer them over `up`, `down`, `left` and `right` to
           support different input methods correctly.
+        * Starting from version 5.17.0, the `up`, `down`, `left`, and `right`
+          fields are strictly filled out based on the actual movement; the
+          value of these fields is only true if the movement in the corresponding
+          direction is significant compared to the orthogonal direction. In
+          particular, newer clients never report keys in opposing directions as
+          being held down simultaneously.
     * Returns an empty table `{}` if the object is not a player.
 * `get_player_control_bits()`: returns integer with bit packed player pressed
   keys.
