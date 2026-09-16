@@ -16,7 +16,11 @@
 
 bool ModSpecCompare::operator()(const ModSpec &a, const ModSpec &b) const
 {
-	return strcasecmp(a.name.c_str(), b.name.c_str()) < 0;
+	int cmp = strcasecmp(a.name.c_str(), b.name.c_str());
+	if (cmp == 0)
+		return strcmp(a.path.c_str(), b.path.c_str()) < 0;
+
+	return cmp < 0;
 }
 
 void ModSpec::checkAndLog() const
