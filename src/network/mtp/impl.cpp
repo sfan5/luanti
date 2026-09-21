@@ -1600,7 +1600,6 @@ session_t Connection::createPeer(const Address &sender, int fd)
 
 const std::string Connection::getDesc()
 {
-	MutexAutoLock _(m_info_mutex);
 	return std::string("con(")+
 			itos(m_udpSocket.GetHandle())+"/"+itos(m_peer_id)+")";
 }
@@ -1612,10 +1611,7 @@ void Connection::DisconnectPeer(session_t peer_id)
 
 void Connection::SetPeerID(session_t id)
 {
-	{
-		MutexAutoLock _(m_info_mutex);
-		m_peer_id = id;
-	}
+	m_peer_id = id;
 	// fix peer id in existing queued reliable packets
 	if (id != PEER_ID_INEXISTENT)
 		putCommand(ConnectionCommand::peer_id_set(id));
