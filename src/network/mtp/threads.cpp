@@ -1361,7 +1361,6 @@ SharedBuffer<u8> ConnectionReceiveThread::handlePacketType_Reliable(Channel *cha
 				<< ", seqnum: " << seqnum << std::endl;)
 
 			throw ProcessedQueued("Buffered future reliable packet");
-		} catch (AlreadyExistsException &e) {
 		} catch (IncomingDataCorruption &e) {
 			m_connection->putCommand(ConnectionCommand::disconnect_peer(peer->id));
 
@@ -1370,6 +1369,7 @@ SharedBuffer<u8> ConnectionReceiveThread::handlePacketType_Reliable(Channel *cha
 				<< ", channel: " << (channelnum & 0xFF)
 				<< ", seqnum: " << seqnum
 				<< "DROPPING CLIENT!" << std::endl;)
+			throw ProcessedSilentlyException("Dropped corrupt reliable packet");
 		}
 	}
 
