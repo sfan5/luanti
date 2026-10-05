@@ -64,7 +64,7 @@ public:
 		return COLLISION_BIT_OBJECT;
 	}
 	u32 getCollisionMask() const {
-		return (m_prop.collideWithPlayers ? COLLISION_BIT_PLAYER : 0) |
+		return (m_prop.getCollideWithPlayers() ? COLLISION_BIT_PLAYER : 0) |
 			(m_prop.collideWithObjects ? COLLISION_BIT_OBJECT : 0);
 	}
 	bool getCollisionBox(aabb3f *toset) const;
