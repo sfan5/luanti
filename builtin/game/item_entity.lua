@@ -21,6 +21,7 @@ core.register_entity(":__builtin:item", {
 		hp_max = 1,
 		physical = true,
 		collide_with_objects = false,
+		collide_with_players = false, -- (FIXME)
 		collisionbox = {-0.3, -0.3, -0.3, 0.3, 0.3, 0.3},
 		visual = "wielditem",
 		visual_size = {x = 0.4, y = 0.4},

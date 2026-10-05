@@ -367,6 +367,8 @@ void read_object_properties(lua_State *L, int index,
 	}
 	getboolfield(L, -1, "physical", prop->physical);
 	getboolfield(L, -1, "collide_with_objects", prop->collideWithObjects);
+	// FIXME compat
+	getboolfield(L, -1, "collide_with_players", prop->collideWithPlayers);
 
 	lua_getfield(L, -1, "collisionbox");
 	bool collisionbox_defined = lua_istable(L, -1);
@@ -551,8 +553,8 @@ void push_object_properties(lua_State *L, const ObjectProperties *prop)
 	lua_setfield(L, -2, "breath_max");
 	lua_pushboolean(L, prop->physical);
 	lua_setfield(L, -2, "physical");
-	lua_pushboolean(L, prop->collideWithObjects);
-	lua_setfield(L, -2, "collide_with_objects");
+	setboolfield(L, -1, "collide_with_objects", prop->collideWithObjects);
+	setboolfield(L, -1, "collide_with_players", prop->collideWithPlayers);
 	push_aabb3f(L, prop->collisionbox);
 	lua_setfield(L, -2, "collisionbox");
 	push_aabb3f(L, prop->selectionbox);

@@ -72,6 +72,7 @@ struct ObjectProperties
 	// In a future protocol these could be a flag field.
 	bool physical = false;
 	bool collideWithObjects = true;
+	bool collideWithPlayers = true;
 	bool rotate_selectionbox = false;
 	bool is_visible = true;
 	bool makes_footstep_sound = false;
