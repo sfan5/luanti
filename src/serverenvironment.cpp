@@ -7,6 +7,7 @@
 #include <utility>
 #include <iterator>
 #include "serverenvironment.h"
+#include "common/c_types.h"
 #include "irr_aabb3d.h"
 #include "settings.h"
 #include "log.h"
@@ -1413,9 +1414,19 @@ u16 ServerEnvironment::addActiveObjectRaw(std::unique_ptr<ServerActiveObject> ob
 
 	// Register reference in scripting api (must be done before post-init)
 	m_script->addObjectReference(object);
+
 	// Post-initialize object
 	// Note that this can change the value of isStaticAllowed() in case of LuaEntitySAO
-	object->addedToEnvironment(dtime_s);
+	try {
+		object->addedToEnvironment(dtime_s);
+	} catch (const LuaError &e) {
+		errorstream << "ServerEnvironment::addActiveObjectRaw(): "
+				<< "object could not be added due to a Lua error" << std::endl;
+		// Don't add the object on a error to not duplicate static objects
+		// Need to remove the object again, since registerObject already added it
+		object->markForRemoval();
+		throw;
+	}
 
 	// Activate object
 	if (object->m_static_exists)
