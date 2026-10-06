@@ -673,6 +673,8 @@ void Client::step(float dtime)
 				}
 			}
 
+			// TODO?: it's really weird and complicates things how we only ack
+			// blocks after they've been through the meshgen queue...
 			for (auto p : r.ack_list) {
 				if (blocks_to_ack.size() == 255) {
 					sendGotBlocks(blocks_to_ack);
@@ -682,9 +684,7 @@ void Client::step(float dtime)
 				blocks_to_ack.emplace_back(p);
 			}
 
-			for (auto block : r.map_blocks)
-				if (block)
-					block->refDrop();
+			r.dropBlocks();
 		}
 		if (blocks_to_ack.size() > 0) {
 				// Acknowledge block(s)
@@ -836,18 +836,11 @@ bool Client::updateStaticLighting(const StaticLighting &future)
 		set_light_curve(gamma);
 	}
 
-	// First get rid of all meshes that we have generated or are about to generate
-	m_mesh_update_manager->clearAllQueues();
-
-	// Then re-generate every block mesh
-	// (yes, this isn't a smooth operation at all. the static lighting should
-	// change very rarely at all.)
+	// Force a re-mesh of all blocks
 	ClientMap &map = m_env.getClientMap();
 	std::vector<v3s16> to_update;
 	map.getBlocksWithMeshes(to_update);
-	for (v3s16 p : to_update) {
-		m_mesh_update_manager->updateBlock(&map, p, false, false, false);
-	}
+	m_mesh_update_manager->forceRegenerate(&map, to_update);
 
 	return true;
 }
