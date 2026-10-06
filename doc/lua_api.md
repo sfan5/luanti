@@ -9762,7 +9762,7 @@ You **must not** mix names and track numbers to refer to the same animation.
       * `static` is a table that controls static world lighting
         * (added in 5.18.0, no client setting requirements)
         * Note that changing these parameters is an expensive operation for the client.
-        * `light_curve`: LUT that converts light values (0-15) to intensity on screen (0-255)
+        * `light_curve`: LUT that converts light values (0-15) to brightness (0-255)
           * table containing 16 numbers or an empty table to reset to the default
           * The values should be monotonically increasing and the last value should
             be 255. Otherwise there might be lighting bugs.

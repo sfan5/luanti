@@ -616,6 +616,10 @@ void Client::step(float dtime)
 		Replace updated meshes
 	*/
 	{
+		// This can cause pending mesh updates to lose their validity, so do it
+		// before processing them.
+		updateStaticLighting(player->getLighting().static_);
+
 		int num_processed_meshes = 0;
 		std::vector<v3s16> blocks_to_ack;
 		bool force_update_shadows = false;
@@ -700,9 +704,6 @@ void Client::step(float dtime)
 				shadow->setForceUpdateShadowMap();
 		};
 	}
-
-	// Intentionally do this *after* processing mesh updates
-	updateStaticLighting(player->getLighting().static_);
 
 	/*
 		Load fetched media
