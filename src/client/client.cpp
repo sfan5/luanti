@@ -2053,8 +2053,8 @@ void Client::pushToEventQueue(ClientEvent *event)
 }
 
 // IGameDef interface
-// Under envlock
-IItemDefManager* Client::getItemDefManager()
+
+const IItemDefManager* Client::getItemDefManager() const
 {
 	return m_itemdef;
 }
@@ -2064,8 +2064,7 @@ const NodeDefManager* Client::getNodeDefManager()
 }
 ICraftDefManager* Client::getCraftDefManager()
 {
-	return NULL;
-	//return m_craftdef;
+	return nullptr;
 }
 ITextureSource* Client::getTextureSource()
 {
