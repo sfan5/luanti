@@ -18,6 +18,7 @@ local cache_file_path = core.get_cache_path() .. DIR_DELIM .. "cdb" .. DIR_DELIM
 local has_fetched = false
 local latest_releases
 do
+	-- reuse cached data if available and valid
 	if check_cache_age("cdb_updates_last_checked", 24 * 3600) then
 		local f = io.open(cache_file_path, "r")
 		local data = ""
@@ -46,7 +47,8 @@ local function fetch_latest_releases()
 		return
 	end
 
-	return core.parse_json(response.data)
+	local ret = core.parse_json(response.data) -- nil on error
+	return type(ret) == "table" and ret
 end
 
 
@@ -87,7 +89,8 @@ local function fetch()
 
 	get_latest_releases(function(releases)
 		if not releases then
-			has_fetched = false
+			-- do not retry so we don't spam the backend.
+			-- note that relaunching the menu will try again anyway.
 			return
 		end
 		latest_releases = lowercase_keys(releases)
