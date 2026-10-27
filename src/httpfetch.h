@@ -94,6 +94,9 @@ struct HTTPFetchResult
 	u64 caller = HTTPFETCH_DISCARD;
 	u64 request_id = 0;
 
+	/// @brief returns true if the request succeeded with a non-error status code
+	bool good() const { return succeeded && response_code < 400; }
+
 	HTTPFetchResult() = default;
 
 	HTTPFetchResult(const HTTPFetchRequest &fetch_request) :

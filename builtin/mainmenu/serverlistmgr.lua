@@ -128,7 +128,7 @@ local function fetch_geoip()
 	local url = core.settings:get("serverlist_url") .. "/geoip"
 
 	local response = http.fetch_sync({ url = url })
-	if not response.succeeded then
+	if not response.succeeded or response.code >= 400 then
 		return
 	end
 
@@ -137,6 +137,22 @@ local function fetch_geoip()
 		return
 	end
 	return type(retval.continent) == "string" and retval.continent
+end
+
+local function fetch_serverlist()
+	local http = core.get_http_api()
+	local url = ("%s/list?proto_version_min=%d&proto_version_max=%d"):format(
+		core.settings:get("serverlist_url"),
+		core.get_min_supp_proto(),
+		core.get_max_supp_proto())
+
+	local response = http.fetch_sync({ url = url })
+	if not response.succeeded or response.code >= 400 then
+		return {}
+	end
+
+	local retval = core.parse_json(response.data)
+	return type(retval) == "table" and retval.list or {}
 end
 
 function serverlistmgr.sync()
@@ -181,24 +197,7 @@ function serverlistmgr.sync()
 	public_downloading = true
 
 	-- note: this isn't cached because it's way too dynamic
-	core.handle_async(
-		function(param)
-			local http = core.get_http_api()
-			local url = ("%s/list?proto_version_min=%d&proto_version_max=%d"):format(
-				core.settings:get("serverlist_url"),
-				core.get_min_supp_proto(),
-				core.get_max_supp_proto())
-
-			local response = http.fetch_sync({ url = url })
-			if not response.succeeded then
-				return {}
-			end
-
-			local retval = core.parse_json(response.data)
-			return retval and retval.list or {}
-		end,
-		nil,
-		function(result)
+	core.handle_async(fetch_serverlist, nil, function(result)
 			public_downloading = false
 			local favs = order_server_list(result)
 			if favs[1] then

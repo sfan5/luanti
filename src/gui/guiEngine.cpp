@@ -649,7 +649,7 @@ bool GUIEngine::downloadFile(const std::string &url, const std::string &target)
 		(long)g_settings->getS32("curl_file_download_timeout"));
 	bool completed = httpfetch_sync_interruptible(fetch_request, fetch_result);
 
-	if (!completed || !fetch_result.succeeded) {
+	if (!completed || !fetch_result.good()) {
 		target_file.close();
 		fs::DeleteSingleFileOrEmptyDirectory(target, true);
 		return false;

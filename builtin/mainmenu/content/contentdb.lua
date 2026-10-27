@@ -411,7 +411,7 @@ local function fetch_pkgs()
 			core.get_http_accept_languages()
 		},
 	})
-	if not response.succeeded then
+	if not response.succeeded or response.code >= 400 then
 		return
 	end
 
@@ -624,7 +624,7 @@ local function get_package_info(key, path)
 					core.get_http_accept_languages()
 				},
 			})
-			if not response.succeeded then
+			if not response.succeeded or response.code >= 400 then
 				return nil
 			end
 

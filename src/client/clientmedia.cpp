@@ -286,7 +286,7 @@ void ClientMediaDownloader::remoteHashSetReceived(
 
 	m_outstanding_hash_sets--;
 
-	if (fetch_result.succeeded) {
+	if (fetch_result.good()) {
 		try {
 			// Server sent a list of file hashes that are
 			// available on it, try to parse the list
@@ -343,7 +343,7 @@ void ClientMediaDownloader::remoteMediaReceived(
 
 	// If fetch succeeded, try to load media file
 
-	if (fetch_result.succeeded) {
+	if (fetch_result.good()) {
 		bool success = checkAndLoad(name, filestatus->sha1,
 				fetch_result.data, false, client);
 		if (success) {
@@ -716,7 +716,7 @@ void SingleMediaDownloader::remoteMediaReceived(
 	sanity_check(m_current_remote >= 0);
 
 	// If fetch succeeded, try to load it
-	if (fetch_result.succeeded) {
+	if (fetch_result.good()) {
 		bool success = checkAndLoad(m_file_name, m_file_sha1,
 				fetch_result.data, false, client);
 		if (success) {

@@ -162,18 +162,16 @@ function check_new_version()
 	end
 	cache_settings:set("update_last_checked", tostring(os.time()))
 
-	-- Clean old leftovers (this can be removed after 5.9.0 or so)
-	core.settings:remove("update_last_checked")
-	core.settings:remove("update_last_known")
-
 	core.handle_async(function(params)
 		local http = core.get_http_api()
 		return http.fetch_sync(params)
 	end, { url = url }, function(result)
-		local json = result.succeeded and core.parse_json(result.data)
+		if not result.succeeded or result.code >= 400 then
+			return
+		end
+		local json = core.parse_json(result.data)
 		if type(json) ~= "table" or not json.latest then
-			core.log("error", "Failed to read JSON output from " .. url ..
-					", status code = " .. result.code)
+			core.log("error", "Failed to read JSON output from " .. url)
 			return
 		end
 

@@ -12785,7 +12785,7 @@ Used by `HTTPApiTable.fetch` and `HTTPApiTable.fetch_async`.
     -- Not allowed for GET or HEAD method and `data` must be a table.
 
     quiet = boolean,
-    -- Optional, if true then error messages are suppressed on failure.
+    -- Optional, if true then error logging is suppressed on failure.
     -- Default is false.
 
     post_data = "Raw POST request data string" OR {field1 = "data1", field2 = "data2"},
@@ -12803,16 +12803,18 @@ Passed to `HTTPApiTable.fetch` callback. Returned by
 {
     completed = true,
     -- If true, the request has finished (either succeeded, failed or timed
-    -- out)
+    -- out).
 
     succeeded = true,
-    -- If true, the request was successful
+    -- If true, the request was successful.
+    -- Note that requests that returned an error status are still considered
+    -- "successful", so you should check `code` too.
 
     timeout = false,
-    -- If true, the request timed out
+    -- If true, the request timed out.
 
     code = 200,
-    -- HTTP status code
+    -- HTTP status code (0 if not known)
 
     data = "",
     -- Response body

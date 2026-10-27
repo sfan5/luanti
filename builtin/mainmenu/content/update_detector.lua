@@ -43,7 +43,7 @@ local function fetch_latest_releases()
 			core.get_max_supp_proto() .. "&engine_version=" .. core.urlencode(version.string)
 	local http = core.get_http_api()
 	local response = http.fetch_sync({ url = url })
-	if not response.succeeded then
+	if not response.succeeded or response.code >= 400 then
 		return
 	end
 
